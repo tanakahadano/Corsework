@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Реєстрація на консультацію</title>
+<style>
+  :root {
+    --bg: #eef2f7; --card: #ffffff; --text: #1f2937; --muted: #6b7280;
+    --primary: #2563eb; --primary-dark: #1d4ed8; --border: #d1d5db;
+    --error: #dc2626; --ok: #15803d; --ok-bg: #ecfdf3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8;
+      --primary: #3b82f6; --primary-dark: #2563eb; --border: #475569;
+      --error: #f87171; --ok: #4ade80; --ok-bg: #12301f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 24px; background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  .card {
+    width: 100%; max-width: 480px; background: var(--card);
+    padding: 32px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.12);
+  }
+  h1 { margin: 0 0 4px; font-size: 1.6rem; }
+  .sub { margin: 0 0 24px; color: var(--muted); }
+  .field { margin-bottom: 16px; }
+  .row { display: flex; gap: 12px; }
+  .row select { flex: 1; min-width: 0; }
+  label { display: block; margin-bottom: 6px; font-weight: 600; font-size: .9rem; }
+  input, select {
+    width: 100%; padding: 10px 12px; font-size: 1rem; color: var(--text);
+    background: var(--card); border: 1.5px solid var(--border); border-radius: 8px;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  input:focus, select:focus {
+    outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.2);
+  }
+  .invalid input, .invalid select { border-color: var(--error); }
+  .error { display: none; margin-top: 4px; color: var(--error); font-size: .82rem; }
+  .invalid .error { display: block; }
+  .check { display: flex; align-items: flex-start; gap: 8px; font-size: .9rem; }
+  .check input { width: auto; margin-top: 3px; }
+  .check label { margin: 0; font-weight: 400; }
+  button {
+    width: 100%; padding: 12px; font-size: 1rem; font-weight: 600; color: #fff;
+    background: var(--primary); border: 0; border-radius: 8px; cursor: pointer;
+    transition: background .2s;
+  }
+  button:hover { background: var(--primary-dark); }
+  .result {
+    display: none; margin-top: 20px; padding: 16px; border-radius: 10px;
+    background: var(--ok-bg); border: 1px solid var(--ok); color: var(--text);
+  }
+  .result h2 { margin: 0 0 8px; font-size: 1.1rem; color: var(--ok); }
+  .result p { margin: 4px 0; }
+</style>
+</head>
+<body>
+<main class="card">
+  <h1>Реєстрація на консультацію</h1>
+  <p class="sub">Оберіть викладача, дату й час та залиште контакти.</p>
+
+  <form id="form" novalidate>
+    <div class="field" id="f-teacher">
+      <label for="teacher">Викладач</label>
+      <select id="teacher">
+        <option value="">— оберіть викладача —</option>
+        <option>Кудренко С. О. — Технології програмування</option>
+        <option>Кириленко А. Ю. — Апаратне забезпечення інформаційних систем</option>
+        <option>Пекуровський Г. В. — Технології виявлення уразливостей інформаційних систем</option>
+        <option>Клешня Г. М. — Філософія</option>
+      </select>
+      <div class="error">Оберіть викладача зі списку.</div>
+    </div>
+
+    <div class="field" id="f-date">
+      <label for="day">Дата (день, місяць, рік)</label>
+      <div class="row">
+        <select id="day" aria-label="День"></select>
+        <select id="month" aria-label="Місяць"></select>
+        <select id="year" aria-label="Рік"></select>
+      </div>
+      <div class="error" id="dateError">Оберіть дату.</div>
+    </div>
+
+    <div class="field" id="f-time">
+      <label for="time">Час</label>
+      <select id="time"></select>
+      <div class="error">Оберіть час.</div>
+    </div>
+
+    <div class="field" id="f-name">
+      <label for="name">Ім’я та прізвище</label>
+      <input type="text" id="name" placeholder="Іван Петренко" autocomplete="name">
+      <div class="error">Введіть щонайменше 3 символи.</div>
+    </div>
+
+    <div class="field" id="f-email">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="name@example.com" autocomplete="email">
+      <div class="error">Введіть коректну email-адресу.</div>
+    </div>
+
+    <div class="field" id="f-agree">
+      <div class="check">
+        <input type="checkbox" id="agree">
+        <label for="agree">Підтверджую правильність даних і згоден на обробку контактів</label>
+      </div>
+      <div class="error">Необхідно підтвердити згоду.</div>
+    </div>
+
+    <button type="submit">Записатися</button>
+  </form>
+
+  <div class="result" id="result" role="status" aria-live="polite"></div>
+</main>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const form = $("form");
+
+  const MONTHS = ["січень","лютий","березень","квітень","травень","червень",
+                  "липень","серпень","вересень","жовтень","листопад","грудень"];
+  const MONTHS_GEN = ["січня","лютого","березня","квітня","травня","червня",
+                      "липня","серпня","вересня","жовтня","листопада","грудня"];
+  const WEEKDAYS = ["неділя","понеділок","вівторок","середа","четвер","пʼятниця","субота"];
+
+  function fill(sel, placeholder, items) {
+    sel.innerHTML = "";
+    sel.add(new Option(placeholder, ""));
+    items.forEach(([text, value]) => sel.add(new Option(text, value)));
+  }
+
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  fill($("day"), "день", Array.from({length: 31}, (_, i) => [i + 1, i + 1]));
+  fill($("month"), "місяць", MONTHS.map((m, i) => [m, i]));
+  fill($("year"), "рік", [now.getFullYear(), now.getFullYear() + 1].map(y => [y, y]));
+
+  // Час з півгодинними інтервалами: 09:00 – 17:30
+  const slots = [];
+  for (let h = 9; h <= 17; h++) {
+    for (const m of ["00", "30"]) {
+      const t = String(h).padStart(2, "0") + ":" + m;
+      slots.push([t, t]);
+    }
+  }
+  fill($("time"), "— оберіть час —", slots);
+
+  // Правила перевірки: повертають true, якщо поле коректне
+  const rules = {
+    teacher: () => $("teacher").value !== "",
+    time:    () => $("time").value !== "",
+    name:    () => $("name").value.trim().length >= 3,
+    email:   () => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($("email").value.trim()),
+    agree:   () => $("agree").checked,
+    date: () => {
+      const err = $("dateError");
+      const d = $("day").value, m = $("month").value, y = $("year").value;
+      if (d === "" || m === "" || y === "") { err.textContent = "Оберіть день, місяць і рік."; return false; }
+      const date = new Date(+y, +m, +d);
+      if (date.getMonth() !== +m) { err.textContent = "Такої дати не існує."; return false; }
+      if (date < todayStart) { err.textContent = "Дата не може бути в минулому."; return false; }
+      if (date.getDay() === 0 || date.getDay() === 6) { err.textContent = "Консультації лише в будні дні."; return false; }
+      return true;
+    }
+  };
+
+  function check(name) {
+    const ok = rules[name]();
+    $("f-" + name).classList.toggle("invalid", !ok);
+    return ok;
+  }
+
+  // Перевірка після зміни або виходу з поля
+  const watch = { teacher: ["teacher"], time: ["time"], name: ["name"], email: ["email"],
+                  agree: ["agree"], date: ["day", "month", "year"] };
+  Object.entries(watch).forEach(([name, ids]) =>
+    ids.forEach(id => {
+      $(id).addEventListener("change", () => check(name));
+      $(id).addEventListener("blur", () => check(name));
+    }));
+
+  const esc = t => t.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const allValid = Object.keys(rules).map(check).every(Boolean);
+    const result = $("result");
+
+    if (!allValid) {
+      result.style.display = "none";
+      return;
+    }
+
+    const date = new Date(+$("year").value, +$("month").value, +$("day").value);
+    const dateText = date.getDate() + " " + MONTHS_GEN[date.getMonth()] + " " +
+                     date.getFullYear() + " р. (" + WEEKDAYS[date.getDay()] + ")";
+
+    result.innerHTML =
+      "<h2>Запис підтверджено ✔</h2>" +
+      "<p><b>Викладач:</b> " + esc($("teacher").value) + "</p>" +
+      "<p><b>Дата й час:</b> " + dateText + ", " + $("time").value + "</p>" +
+      "<p><b>Студент:</b> " + esc($("name").value.trim()) + "</p>" +
+      "<p>Підтвердження буде надіслано на " + esc($("email").value.trim()) + ".</p>";
+    result.style.display = "block";
+    form.reset();
+  });
+</script>
+</body>
+</html>
